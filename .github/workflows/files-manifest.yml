@@ -17,18 +17,18 @@ jobs:
       - name: Update files.json
         run: |
           DIR="files"
-          echo "[" > files.json
+          echo "[" > "$DIR/files.json"
           find "$DIR" -maxdepth 1 -type f -name "*.zip" -printf '%f\n' \
             | sort -V \
-            | sed 's/.*/  "&",/' >> files.json
-          sed -i '$ s/,$//' files.json || true
-          echo "]" >> files.json
-          cat files.json
+            | sed 's/.*/  "&",/' >> "$DIR/files.json"
+          sed -i '$ s/,$//' "$DIR/files.json" || true
+          echo "]" >> "$DIR/files.json"
+          cat "$DIR/files.json"
 
       - name: Commit files.json
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add files.json
+          git add files/files.json
           git commit -m "Update files.json" || echo "No changes to commit"
           git push
