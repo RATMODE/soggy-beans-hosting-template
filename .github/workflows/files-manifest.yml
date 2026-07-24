@@ -1,0 +1,34 @@
+name: Update files.json
+
+on:
+  push:
+    branches: [ main ]     # run whenever there is a push to main
+  workflow_dispatch:       # allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Update files.json
+        run: |
+          DIR="files"
+          echo "[" > files.json
+          find "$DIR" -maxdepth 1 -type f -name "*.zip" -printf '%f\n' \
+            | sort -V \
+            | sed 's/.*/  "&",/' >> files.json
+          sed -i '$ s/,$//' files.json || true
+          echo "]" >> files.json
+          cat files.json
+
+      - name: Commit files.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add files.json
+          git commit -m "Update files.json" || echo "No changes to commit"
+          git push
