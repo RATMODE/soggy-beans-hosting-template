@@ -2,48 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Currents</title>
+  <title></title>
 
   <!-- Bootstrap -->
-<link
-  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-  rel="stylesheet"
-/>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
 
-<!-- Font Awesome -->
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
 </head>
 
-<body class="bg-light text-dark py-5">
+<body class="py-5">
   <div class="container">
-    <h2 class="mb-4 text-center">Available Currents</h2>
+    <h2 id="page-title" class="mb-4 text-center"></h2>
 
     <div id="file-list" class="list-group shadow-sm"></div>
-    <div id="status" class="mt-3 text-success text-center"></div>
+    <div id="status" class="mt-3 text-center"></div>
   </div>
 
+  <script src="config.js"></script>
+
   <script>
+    document.title = siteConfig.siteTitle;
+
+    document.body.style.backgroundColor = siteConfig.backgroundColor;
+    document.body.style.color = siteConfig.textColor;
+
+    document.getElementById("page-title").textContent = siteConfig.pageTitle;
+
     fetch('files/files.json')
       .then(r => r.json())
       .then(files => {
         const list = document.getElementById("file-list");
-        files.forEach(filename => {
-          const displayName = filename.replace(/\.zip$/i, "");
+
+        files.forEach(bundle => {
+          const filename = `${bundle.slug}.zip`;
           const item = document.createElement("div");
           item.className = "list-group-item d-flex justify-content-between align-items-center";
-    
-          const name = document.createElement("span");
-          name.textContent = displayName;
-    
+
+          const content = document.createElement("div");
+
+          const name = document.createElement("div");
+          name.className = "fw-semibold";
+          name.textContent = bundle.name;
+
+          const description = document.createElement("div");
+          description.className = "text-secondary small";
+          description.textContent = bundle.description;
+
           const button = document.createElement("button");
-          button.className = "btn btn-outline-secondary btn-sm";
+          button.className = "btn btn-sm";
+          button.style.border = `1px solid ${siteConfig.accentColor}`;
+          button.style.color = siteConfig.accentColor;
           button.innerHTML = '<i class="fa-solid fa-clipboard"></i>';
           button.onclick = () => copyLink(filename, button);
-    
-          item.appendChild(name);
+
+          content.appendChild(name);
+          content.appendChild(description);
+
+          item.appendChild(content);
           item.appendChild(button);
           list.appendChild(item);
         });
@@ -59,11 +81,16 @@
       navigator.clipboard.writeText(url).then(() => {
         const status = document.getElementById("status");
         status.textContent = `Copied: ${url}`;
-        button.innerHTML = '<i class="fa-solid fa-check text-success"></i>';
+        status.style.color = siteConfig.successColor;
+
+        button.innerHTML = '<i class="fa-solid fa-check"></i>';
+        button.style.color = siteConfig.successColor;
+
         setTimeout(() => {
           status.textContent = "";
           button.innerHTML = '<i class="fa-solid fa-clipboard"></i>';
-        }, 2500);
+          button.style.color = siteConfig.accentColor;
+        }, 4000);
       });
     }
   </script>

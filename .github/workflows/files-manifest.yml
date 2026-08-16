@@ -2,8 +2,8 @@ name: Update files.json
 
 on:
   push:
-    branches: [ main ]     # run whenever there is a push to main
-  workflow_dispatch:       # allow manual trigger
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,21 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Update files.json
-        run: |
-          DIR="files"
-          echo "[" > "$DIR/files.json"
-          find "$DIR" -maxdepth 1 -type f -name "*.zip" -printf '%f\n' \
-            | sort -V \
-            | sed 's/.*/  "&",/' >> "$DIR/files.json"
-          sed -i '$ s/,$//' "$DIR/files.json" || true
-          echo "]" >> "$DIR/files.json"
-          cat "$DIR/files.json"
+      - name: Update files
+        run: python3 .github/scripts/update_files.py
 
-      - name: Commit files.json
+      - name: Commit updates
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add files/files.json
-          git commit -m "Update files.json" || echo "No changes to commit"
+          git add -A files
+          git commit -m "Update files" || echo "No changes to commit"
           git push
