@@ -30,12 +30,29 @@
   <script>
     document.title = siteConfig.siteTitle;
 
+    if (siteConfig.fontImport) {
+      const fontLink = document.createElement("link");
+      fontLink.rel = "stylesheet";
+      fontLink.href = siteConfig.fontImport;
+      document.head.appendChild(fontLink);
+    }
+
     document.body.style.backgroundColor = siteConfig.backgroundColor;
+    document.body.style.backgroundImage = siteConfig.backgroundImage
+      ? `url("${siteConfig.backgroundImage}")`
+      : "none";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundAttachment = "fixed";
     document.body.style.color = siteConfig.textColor;
+    document.body.style.fontFamily = siteConfig.fontFamily;
 
     document.getElementById("page-title").textContent = siteConfig.pageTitle;
+    document.getElementById("page-title").style.color = siteConfig.titleColor;
 
-    fetch('files/files.json')
+    // add date for cache busting to not need to hard refresh after each update
+    fetch(`files/files.json?v=${Date.now()}`)
       .then(r => r.json())
       .then(files => {
         const list = document.getElementById("file-list");
